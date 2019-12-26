@@ -8,8 +8,33 @@ import (
 )
 
 func main() {
-	iprecords, _ := net.LookupIP("gw.eng.cam.ac.uk")
-	for _, ip := range iprecords {
+	StaticIPAddresses := []string{"192.168.88.1", "192.168.88.4"}
+	StaticHostnames := []string{"gw.eng.cam.ac.uk"}
+	for _, ip := range StaticIPAddresses {
+		pingByIP(ip)
+	}
+	for _, hostname := range StaticHostnames {
+		pingByHostname(hostname)
+	}
+}
+
+func pingByIP(ip string) {
+	names, err := net.LookupAddr(ip)
+	if err != nil {
+		fmt.Println("noname")
+	} else {
+		fmt.Println(names[0])
+	}
+	ping(ip)
+}
+
+func pingByHostname(hostname string) {
+	fmt.Println(hostname)
+	records, err := net.LookupIP(hostname)
+	if err != nil {
+		panic(err)
+	}
+	for _, ip := range records {
 		ping(ip.String())
 	}
 }
