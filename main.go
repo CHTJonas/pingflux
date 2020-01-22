@@ -9,8 +9,8 @@ import (
 func main() {
 	startInit()
 	for e := hosts.Front(); e != nil; e = e.Next() {
-		p := e.Value
-		ping(p.(*pair).ip)
+		p := e.Value.(*pair)
+		ping(p.ip, p.friendlyName)
 	}
 }
 
@@ -26,7 +26,7 @@ func startInit() {
 	}
 }
 
-func ping(host string) {
+func ping(host string, friendlyName string) {
 	pinger, err := pingu.NewPinger(host)
 	if err != nil {
 		panic(err)
@@ -34,5 +34,5 @@ func ping(host string) {
 	pinger.Count = 3
 	pinger.Run() // blocks until finished
 	stats := pinger.Statistics()
-	storeInInflux(stats.MinRtt, stats.AvgRtt, stats.MaxRtt)
+	storeInInflux(friendlyName, stats.MinRtt, stats.AvgRtt, stats.MaxRtt)
 }
