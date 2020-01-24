@@ -12,9 +12,9 @@ func main() {
 	initConnection()
 	defer conn.Close()
 	for e := hosts.Endpoints.Front(); e != nil; e = e.Next() {
-		h := e.Value.(*hosts.Host)
-		stats := h.Ping()
-		conn.Store(stats, h.FriendlyName)
+		host := e.Value.(*hosts.Host)
+		stats := host.Ping()
+		conn.Store(stats, host)
 	}
 }
 
@@ -26,13 +26,39 @@ func initConnection() {
 }
 
 func initHosts() {
-	StaticIPAddresses := []string{"192.168.88.4", "146.97.41.38", "146.97.41.46"}
-	StaticHostnames := []string{"gw.eng.cam.ac.uk"}
 	hosts.ResetEndpoints()
-	for _, ip := range StaticIPAddresses {
-		hosts.AddIP(ip)
+
+	IPAddresseMappings := []map[string]map[string]string{{
+		"192.168.88.4": {
+			"network": "JFDN",
+			"server":  "storage",
+		},
+		"146.97.41.38": {
+			"network": "CUDN",
+			"router":  "border",
+		},
+		"146.97.41.46": {
+			"network": "CUDN",
+			"router":  "border",
+		},
+	}}
+	for _, mapping := range IPAddresseMappings {
+		for ip, tags := range mapping {
+			hosts.AddIP(ip, tags)
+		}
 	}
-	for _, hostname := range StaticHostnames {
-		hosts.AddHostname(hostname)
+
+	hostnameMappings := []map[string]map[string]string{
+		{
+			"gw.eng.cam.ac.uk": {
+				"network": "CUDN",
+				"router":  "institution",
+			},
+		},
+	}
+	for _, mapping := range hostnameMappings {
+		for hostname, tags := range mapping {
+			hosts.AddHostname(hostname, tags)
+		}
 	}
 }

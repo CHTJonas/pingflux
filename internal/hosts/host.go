@@ -7,6 +7,7 @@ import (
 type Host struct {
 	IP           string
 	FriendlyName string
+	Tags         map[string]string
 }
 
 func (h *Host) Ping() *pingu.Statistics {

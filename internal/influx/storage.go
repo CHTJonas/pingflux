@@ -3,11 +3,12 @@ package influx
 import (
 	"time"
 
+	"github.com/chtjonas/pingserv/internal/hosts"
 	client "github.com/influxdata/influxdb1-client/v2"
 	pingu "github.com/sparrc/go-ping"
 )
 
-func (conn *Connection) Store(stats *pingu.Statistics, friendlyName string) {
+func (conn *Connection) Store(stats *pingu.Statistics, host *hosts.Host) {
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  conn.database,
 		Precision: "s",
@@ -15,19 +16,22 @@ func (conn *Connection) Store(stats *pingu.Statistics, friendlyName string) {
 	if err != nil {
 		panic(err)
 	}
-	bp.AddPoint(generateRTTPoint(stats, friendlyName))
-	bp.AddPoint(generatePacketsPoint(stats, friendlyName))
+	bp.AddPoint(generateRTTPoint(stats, host))
+	bp.AddPoint(generatePacketsPoint(stats, host))
 	conn.client.Write(bp)
 }
 
-func getTags(friendlyName string) map[string]string {
-	return map[string]string{
-		"host": friendlyName,
+func getTags(host *hosts.Host) map[string]string {
+	tags := make(map[string]string)
+	for key, value := range host.Tags {
+		tags[key] = value
 	}
+	tags["host"] = host.FriendlyName
+	return tags
 }
 
-func generateRTTPoint(stats *pingu.Statistics, friendlyName string) *client.Point {
-	tags := getTags(friendlyName)
+func generateRTTPoint(stats *pingu.Statistics, host *hosts.Host) *client.Point {
+	tags := getTags(host)
 	fields := map[string]interface{}{
 		"min": stats.MinRtt.Seconds(),
 		"avg": stats.AvgRtt.Seconds(),
@@ -40,8 +44,8 @@ func generateRTTPoint(stats *pingu.Statistics, friendlyName string) *client.Poin
 	return pt
 }
 
-func generatePacketsPoint(stats *pingu.Statistics, friendlyName string) *client.Point {
-	tags := getTags(friendlyName)
+func generatePacketsPoint(stats *pingu.Statistics, host *hosts.Host) *client.Point {
+	tags := getTags(host)
 	fields := map[string]interface{}{
 		"sent": stats.PacketsSent,
 		"recv": stats.PacketsRecv,

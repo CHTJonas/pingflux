@@ -2,12 +2,13 @@ package hosts
 
 import "net"
 
-func AddIP(ip string) {
+func AddIP(ip string, tags map[string]string) {
 	hostnames, err := net.LookupAddr(ip)
 	if err != nil {
 		h := &Host{
 			IP:           ip,
 			FriendlyName: ip,
+			Tags:         tags,
 		}
 		Endpoints.PushBack(h)
 	} else {
@@ -15,13 +16,14 @@ func AddIP(ip string) {
 			h := &Host{
 				IP:           ip,
 				FriendlyName: hostname,
+				Tags:         tags,
 			}
 			Endpoints.PushBack(h)
 		}
 	}
 }
 
-func AddHostname(hostname string) {
+func AddHostname(hostname string, tags map[string]string) {
 	ipAddresses, err := net.LookupHost(hostname)
 	if err != nil {
 		panic(err)
@@ -30,6 +32,7 @@ func AddHostname(hostname string) {
 			h := &Host{
 				IP:           ipAddress,
 				FriendlyName: hostname,
+				Tags:         tags,
 			}
 			Endpoints.PushBack(h)
 		}
