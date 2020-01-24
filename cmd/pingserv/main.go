@@ -1,6 +1,12 @@
 package main
 
 import (
+	"math/rand"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/chtjonas/pingserv/internal/hosts"
 	"github.com/chtjonas/pingserv/internal/influx"
 )
@@ -11,11 +17,38 @@ func main() {
 	initHosts()
 	initConnection()
 	defer conn.Close()
+
 	for e := hosts.Endpoints.Front(); e != nil; e = e.Next() {
-		host := e.Value.(*hosts.Host)
-		stats := host.Ping()
-		conn.Store(stats, host)
+		r := rand.Intn(1000)
+		d := time.Duration(r)
+		time.Sleep(d * time.Millisecond)
+		go setupPinger(e.Value.(*hosts.Host))
 	}
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt)
+	signal.Notify(stop, syscall.SIGTERM)
+	for {
+		select {
+		case <-stop:
+			os.Exit(0)
+		}
+	}
+}
+
+func setupPinger(host *hosts.Host) {
+	ticker := time.NewTicker(10 * time.Second)
+	for {
+		select {
+		case <-ticker.C:
+			go ping(host)
+		}
+	}
+}
+
+func ping(host *hosts.Host) {
+	stats := host.Ping()
+	conn.Store(stats, host)
 }
 
 func initConnection() {
