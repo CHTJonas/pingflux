@@ -16,6 +16,7 @@ func (conn *Connection) Store(stats *pingu.Statistics, friendlyName string) {
 		panic(err)
 	}
 	bp.AddPoint(generateRTTPoint(stats, friendlyName))
+	bp.AddPoint(generatePacketsPoint(stats, friendlyName))
 	conn.client.Write(bp)
 }
 
@@ -39,7 +40,7 @@ func generateRTTPoint(stats *pingu.Statistics, friendlyName string) *client.Poin
 	return pt
 }
 
-func generateLossPoint(stats *pingu.Statistics, friendlyName string) *client.Point {
+func generatePacketsPoint(stats *pingu.Statistics, friendlyName string) *client.Point {
 	tags := getTags(friendlyName)
 	fields := map[string]interface{}{
 		"sent": stats.PacketsSent,

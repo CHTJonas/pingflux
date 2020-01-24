@@ -1,12 +1,8 @@
 package hosts
 
 import (
-	"container/list"
-
 	pingu "github.com/sparrc/go-ping"
 )
-
-var Endpoints *list.List
 
 type Host struct {
 	IP           string
