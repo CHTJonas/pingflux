@@ -10,12 +10,12 @@ type Host struct {
 	Tags         map[string]string
 }
 
-func (h *Host) Ping() *pingu.Statistics {
+func (h *Host) Ping(count int) *pingu.Statistics {
 	pinger, err := pingu.NewPinger(h.IP)
 	if err != nil {
 		panic(err)
 	}
-	pinger.Count = 3
+	pinger.Count = count
 	pinger.Run() // blocks until finished
 	return pinger.Statistics()
 }
