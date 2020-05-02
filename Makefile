@@ -19,7 +19,7 @@ format:
 build/amd64:
 	export GOOS=linux
 	export GOARCH=amd64
-	$(GOBUILD) -o bin/linux-amd64/pingserv cmd/pingserv/main.go
+	$(GOBUILD) -o bin/linux-amd64/pingflux cmd/pingflux/main.go
 
 build: build/amd64
 

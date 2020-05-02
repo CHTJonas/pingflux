@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/chtjonas/pingserv/internal/hosts"
-	"github.com/chtjonas/pingserv/internal/influx"
+	"github.com/chtjonas/pingflux/internal/hosts"
+	"github.com/chtjonas/pingflux/internal/influx"
 )
 
 var conn *influx.Connection
@@ -46,7 +46,7 @@ func setupPinger(host *hosts.Host, count int) {
 
 func initConnection() {
 	addr := "http://localhost:8086"
-	db := "pingserv"
+	db := "pingflux"
 	conn = &influx.Connection{}
 	conn.Open(addr, db)
 }

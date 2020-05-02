@@ -3,7 +3,7 @@ package hosts
 import (
 	"net"
 
-	"github.com/chtjonas/pingserv/internal/influx"
+	"github.com/chtjonas/pingflux/internal/influx"
 	pingu "github.com/sparrc/go-ping"
 )
 
