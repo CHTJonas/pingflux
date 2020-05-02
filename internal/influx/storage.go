@@ -26,7 +26,7 @@ func getTags(host *hosts.Host) map[string]string {
 	for key, value := range host.Tags {
 		tags[key] = value
 	}
-	tags["host"] = host.FriendlyName
+	tags["name"] = host.GetName()
 	return tags
 }
 

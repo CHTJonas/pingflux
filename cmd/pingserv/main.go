@@ -39,14 +39,9 @@ func setupPinger(host *hosts.Host, count int) {
 	for {
 		select {
 		case <-ticker.C:
-			go ping(host, count)
+			go host.Ping(count, conn)
 		}
 	}
-}
-
-func ping(host *hosts.Host, count int) {
-	stats := host.Ping(count)
-	conn.Store(stats, host)
 }
 
 func initConnection() {
