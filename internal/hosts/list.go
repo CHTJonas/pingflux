@@ -4,24 +4,32 @@ import (
 	"container/list"
 )
 
-var Hosts *list.List
-
-func Reset() {
-	Hosts = list.New()
+type List struct {
+	Hosts *list.List
 }
 
-func AddIP(ip string, tags map[string]string) {
+func NewList() *List {
+	return &List{
+		Hosts: list.New(),
+	}
+}
+
+func (l *List) Reset() {
+	l.Hosts = list.New()
+}
+
+func (l *List) AddIP(ip string, tags map[string]string) {
 	host := &Host{
 		IP:   ip,
 		Tags: tags,
 	}
-	Hosts.PushBack(host)
+	l.Hosts.PushBack(host)
 }
 
-func AddHostname(hostname string, tags map[string]string) {
+func (l *List) AddHostname(hostname string, tags map[string]string) {
 	host := &Host{
 		Hostname: hostname,
 		Tags:     tags,
 	}
-	Hosts.PushBack(host)
+	l.Hosts.PushBack(host)
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/chtjonas/pingflux/internal/influx"
 )
 
+var list *hosts.List
 var conn *influx.Connection
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 	initConnection()
 	defer conn.Close()
 
-	for e := hosts.Hosts.Front(); e != nil; e = e.Next() {
+	for e := list.Hosts.Front(); e != nil; e = e.Next() {
 		r := rand.Intn(1000)
 		d := time.Duration(r)
 		time.Sleep(d * time.Millisecond)
@@ -53,7 +54,7 @@ func initConnection() {
 }
 
 func initHosts() {
-	hosts.Reset()
+	list = hosts.NewList()
 
 	IPAddresseMappings := []map[string]map[string]string{{
 		"192.168.86.5": {
@@ -71,7 +72,7 @@ func initHosts() {
 	}}
 	for _, mapping := range IPAddresseMappings {
 		for ip, tags := range mapping {
-			hosts.AddIP(ip, tags)
+			list.AddIP(ip, tags)
 		}
 	}
 
@@ -85,7 +86,7 @@ func initHosts() {
 	}
 	for _, mapping := range hostnameMappings {
 		for hostname, tags := range mapping {
-			hosts.AddHostname(hostname, tags)
+			list.AddHostname(hostname, tags)
 		}
 	}
 }
