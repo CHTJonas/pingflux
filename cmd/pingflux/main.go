@@ -19,7 +19,7 @@ func main() {
 	initConnection()
 	defer conn.Close()
 
-	for e := hosts.Endpoints.Front(); e != nil; e = e.Next() {
+	for e := hosts.Hosts.Front(); e != nil; e = e.Next() {
 		r := rand.Intn(1000)
 		d := time.Duration(r)
 		time.Sleep(d * time.Millisecond)
@@ -39,7 +39,8 @@ func setupPinger(host *hosts.Host, count int) {
 	for {
 		select {
 		case <-ticker.C:
-			go host.Ping(count, conn)
+			statistics := host.Ping(count)
+			conn.Store(statistics, host)
 		}
 	}
 }
@@ -52,10 +53,10 @@ func initConnection() {
 }
 
 func initHosts() {
-	hosts.ResetEndpoints()
+	hosts.Reset()
 
 	IPAddresseMappings := []map[string]map[string]string{{
-		"192.168.88.4": {
+		"192.168.86.5": {
 			"network": "JFDN",
 			"server":  "storage",
 		},

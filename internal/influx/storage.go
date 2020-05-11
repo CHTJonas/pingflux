@@ -8,7 +8,7 @@ import (
 	pingu "github.com/sparrc/go-ping"
 )
 
-func (conn *Connection) Store(stats *pingu.Statistics, host *hosts.Host) {
+func (conn *Connection) Store(statistics []*pingu.Statistics, host *hosts.Host) {
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  conn.database,
 		Precision: "s",
@@ -16,8 +16,10 @@ func (conn *Connection) Store(stats *pingu.Statistics, host *hosts.Host) {
 	if err != nil {
 		panic(err)
 	}
-	bp.AddPoint(generateRTTPoint(stats, host))
-	bp.AddPoint(generatePacketsPoint(stats, host))
+	for _, stats := range statistics {
+		bp.AddPoint(generateRTTPoint(stats, host))
+		bp.AddPoint(generatePacketsPoint(stats, host))
+	}
 	conn.client.Write(bp)
 }
 

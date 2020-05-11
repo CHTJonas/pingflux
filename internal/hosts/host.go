@@ -3,8 +3,7 @@ package hosts
 import (
 	"net"
 
-	"github.com/chtjonas/pingflux/internal/influx"
-	pingu "github.com/sparrc/go-ping"
+	ping "github.com/sparrc/go-ping"
 )
 
 type Host struct {
@@ -14,35 +13,27 @@ type Host struct {
 	Tags     map[string]string
 }
 
-func (h *Host) Ping(count int, conn *influx.Connection) {
-	endpoints := g.GetEndpoints()
-	for _, endpoint := range endpoints {
-		pinger, err := pingu.NewPinger(endpoint)
-		if err != nil {
-			panic(err)
-		}
-		pinger.Count = count
-		pinger.Run() // blocks until finished
-		stats := pinger.Statistics()
-		conn.Store(stats, h)
-	}
-}
-
 func (h *Host) GetName() string {
-	if h.Name {
+	if h.Name != "" {
 		return h.Name
 	}
-	if h.Hostname {
+	if h.Hostname != "" {
 		return h.Hostname
 	}
 	return h.IP
 }
 
-func (h *Host) GetEndpoints() []string {
-	if h.Hostname {
-		return h.ResolveHostname()
+func (h *Host) GetEndpoints() []*Endpoint {
+	if h.Hostname == "" {
+		endpoint := NewEndpoint(h.IP)
+		return []*Endpoint{endpoint}
 	}
-	return []string{h.IP}
+	addrs := h.ResolveHostname()
+	endpoints := make([]*Endpoint, len(addrs))
+	for i, addr := range addrs {
+		endpoints[i] = NewEndpoint(addr)
+	}
+	return endpoints
 }
 
 func (h *Host) ResolveHostname() []string {
@@ -53,10 +44,11 @@ func (h *Host) ResolveHostname() []string {
 	return addrs
 }
 
-func (h *Host) ReverseIP() []string {
-	names, err := net.LookupAddr(ip)
-	if err != nil {
-		panic(err)
+func (h *Host) Ping(count int) []*ping.Statistics {
+	endpoints := h.GetEndpoints()
+	statistics := make([]*ping.Statistics, len(endpoints))
+	for i, e := range endpoints {
+		statistics[i] = e.Ping(count)
 	}
-	return names
+	return statistics
 }
