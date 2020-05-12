@@ -5,7 +5,7 @@ import (
 
 	"github.com/chtjonas/pingflux/internal/hosts"
 	client "github.com/influxdata/influxdb1-client/v2"
-	pingu "github.com/sparrc/go-ping"
+	pingu "github.com/stenya/go-ping"
 )
 
 func (conn *Connection) Store(statistics []*pingu.Statistics, host *hosts.Host) {

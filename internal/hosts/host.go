@@ -1,9 +1,11 @@
 package hosts
 
 import (
+	"fmt"
 	"net"
+	"sync"
 
-	ping "github.com/sparrc/go-ping"
+	ping "github.com/stenya/go-ping"
 )
 
 type Host struct {
@@ -45,10 +47,17 @@ func (h *Host) ResolveHostname() []string {
 }
 
 func (h *Host) Ping(count int) []*ping.Statistics {
+	var wg sync.WaitGroup
 	endpoints := h.GetEndpoints()
 	statistics := make([]*ping.Statistics, len(endpoints))
 	for i, e := range endpoints {
-		statistics[i] = e.Ping(count)
+		wg.Add(1)
+		go func(i int, e *Endpoint) {
+			defer wg.Done()
+			statistics[i] = e.Ping(count)
+		}(i, e)
 	}
+	wg.Wait()
+	fmt.Println("*** DONE ***")
 	return statistics
 }
