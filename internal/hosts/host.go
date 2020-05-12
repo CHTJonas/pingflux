@@ -1,7 +1,6 @@
 package hosts
 
 import (
-	"fmt"
 	"net"
 	"sync"
 
@@ -23,6 +22,15 @@ func (h *Host) GetName() string {
 		return h.Hostname
 	}
 	return h.IP
+}
+
+func (h *Host) GetTags() map[string]string {
+	tags := make(map[string]string)
+	for key, value := range h.Tags {
+		tags[key] = value
+	}
+	tags["name"] = h.GetName()
+	return tags
 }
 
 func (h *Host) GetEndpoints() []*Endpoint {
@@ -58,6 +66,5 @@ func (h *Host) Ping(count int) []*ping.Statistics {
 		}(i, e)
 	}
 	wg.Wait()
-	fmt.Println("*** DONE ***")
 	return statistics
 }

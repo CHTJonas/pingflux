@@ -49,8 +49,7 @@ func setupPinger(host *hosts.Host, count int) {
 func initConnection() {
 	addr := "http://localhost:8086"
 	db := "pingflux"
-	conn = &influx.Connection{}
-	conn.Open(addr, db)
+	conn = influx.New(addr, db)
 }
 
 func initHosts() {

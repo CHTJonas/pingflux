@@ -5,11 +5,11 @@ import (
 
 	"github.com/chtjonas/pingflux/internal/hosts"
 	client "github.com/influxdata/influxdb1-client/v2"
-	pingu "github.com/stenya/go-ping"
+	ping "github.com/stenya/go-ping"
 )
 
-func (conn *Connection) Store(statistics []*pingu.Statistics, host *hosts.Host) {
-	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+func (conn *Connection) Store(statistics []*ping.Statistics, host *hosts.Host) {
+	batch, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  conn.database,
 		Precision: "s",
 	})
@@ -17,45 +17,34 @@ func (conn *Connection) Store(statistics []*pingu.Statistics, host *hosts.Host) 
 		panic(err)
 	}
 	for _, stats := range statistics {
-		bp.AddPoint(generateRTTPoint(stats, host))
-		bp.AddPoint(generatePacketsPoint(stats, host))
+		batch.AddPoint(generateRTTPoint(stats, host))
+		batch.AddPoint(generatePacketsPoint(stats, host))
 	}
-	conn.client.Write(bp)
+	conn.client.Write(batch)
 }
 
-func getTags(host *hosts.Host) map[string]string {
-	tags := make(map[string]string)
-	for key, value := range host.Tags {
-		tags[key] = value
-	}
-	tags["name"] = host.GetName()
-	return tags
-}
-
-func generateRTTPoint(stats *pingu.Statistics, host *hosts.Host) *client.Point {
-	tags := getTags(host)
+func generateRTTPoint(stats *ping.Statistics, host *hosts.Host) *client.Point {
 	fields := map[string]interface{}{
 		"min": stats.MinRtt.Seconds(),
 		"avg": stats.AvgRtt.Seconds(),
 		"max": stats.MaxRtt.Seconds(),
 	}
-	pt, err := client.NewPoint("rtt", tags, fields, time.Now().UTC())
+	point, err := client.NewPoint("rtt", host.GetTags(), fields, time.Now().UTC())
 	if err != nil {
 		panic(err)
 	}
-	return pt
+	return point
 }
 
-func generatePacketsPoint(stats *pingu.Statistics, host *hosts.Host) *client.Point {
-	tags := getTags(host)
+func generatePacketsPoint(stats *ping.Statistics, host *hosts.Host) *client.Point {
 	fields := map[string]interface{}{
 		"sent": stats.PacketsSent,
 		"recv": stats.PacketsRecv,
 		"loss": stats.PacketLoss,
 	}
-	pt, err := client.NewPoint("packets", tags, fields, time.Now().UTC())
+	point, err := client.NewPoint("packets", host.GetTags(), fields, time.Now().UTC())
 	if err != nil {
 		panic(err)
 	}
-	return pt
+	return point
 }

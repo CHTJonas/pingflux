@@ -9,9 +9,15 @@ type Connection struct {
 	database string
 }
 
+func New(addr string, db string) *Connection {
+	conn := &Connection{}
+	conn.Open(addr, db)
+	return conn
+}
+
 func (conn *Connection) Open(addr string, db string) {
 	c, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr: "http://localhost:8086",
+		Addr: addr,
 	})
 	if err != nil {
 		panic(err)

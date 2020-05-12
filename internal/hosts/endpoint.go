@@ -1,7 +1,6 @@
 package hosts
 
 import (
-	"fmt"
 	"time"
 
 	ping "github.com/stenya/go-ping"
@@ -26,7 +25,6 @@ func (e *Endpoint) Ping(count int) *ping.Statistics {
 	pinger.Count = count
 	pinger.Interval = time.Second
 	pinger.Timeout = time.Second * 10
-	fmt.Printf("Pinging %s\n", e.IP)
 	pinger.Run() // blocks until finished
 	return pinger.Statistics()
 }
