@@ -22,6 +22,7 @@ func (e *Endpoint) Ping(count int) *ping.Statistics {
 	if err != nil {
 		panic(err)
 	}
+	pinger.SetPrivileged(true)
 	pinger.Count = count
 	pinger.Interval = time.Second
 	pinger.Timeout = time.Second * 10
