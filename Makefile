@@ -12,6 +12,7 @@ dir:
 get:
 	@$(GOGET) github.com/stenya/go-ping
 	@$(GOGET) github.com/influxdata/influxdb1-client/v2
+	@$(GOGET) github.com/spf13/viper
 
 format:
 	$(GOFMT) ./...

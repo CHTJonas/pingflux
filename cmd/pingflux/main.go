@@ -10,6 +10,7 @@ import (
 
 	"github.com/chtjonas/pingflux/internal/hosts"
 	"github.com/chtjonas/pingflux/internal/influx"
+	"github.com/spf13/viper"
 )
 
 var list *hosts.List
@@ -17,6 +18,7 @@ var conn *influx.Connection
 
 func main() {
 	count := 3
+	readConfigFile()
 	initHosts()
 	initConnection()
 	defer conn.Close()
@@ -54,9 +56,32 @@ func setupPinger(host *hosts.Host, count int) {
 	}
 }
 
+func readConfigFile() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("/etc/pingflux/")
+	viper.AddConfigPath("$HOME/.pingflux")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found
+			panic(err)
+		} else {
+			// Config file found but another error was encountered
+			panic(err)
+		}
+	}
+}
+
 func initConnection() {
-	addr := "http://localhost:8086"
-	db := "pingflux"
+	addr := ""
+	if viper.GetBool("datastore.influx.secure") {
+		addr += "https://"
+	} else {
+		addr += "http://"
+	}
+	addr += viper.GetString("datastore.influx.hostname") + ":" + viper.GetString("datastore.influx.port")
+	db := viper.GetString("datastore.influx.database")
 	conn = influx.New(addr, db)
 }
 
