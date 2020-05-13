@@ -1,6 +1,8 @@
 package influx
 
 import (
+	"time"
+
 	client "github.com/influxdata/influxdb1-client/v2"
 )
 
@@ -28,4 +30,8 @@ func (conn *Connection) Open(addr string, db string) {
 
 func (conn *Connection) Close() {
 	conn.client.Close()
+}
+
+func (conn *Connection) Ping(timeout time.Duration) (time.Duration, string, error) {
+	return conn.client.Ping(timeout)
 }

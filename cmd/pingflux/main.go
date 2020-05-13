@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -19,6 +20,13 @@ func main() {
 	initHosts()
 	initConnection()
 	defer conn.Close()
+
+	_, ver, err := conn.Ping(0)
+	if err != nil {
+		fmt.Println("Error pinging InfluxDB server: ", err.Error())
+	} else {
+		fmt.Println("Got reply from InfluxDB server: ", ver)
+	}
 
 	for e := list.Hosts.Front(); e != nil; e = e.Next() {
 		r := rand.Intn(1000)
