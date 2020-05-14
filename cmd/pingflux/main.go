@@ -24,9 +24,10 @@ func main() {
 	defer conn.Close()
 	_, ver, err := conn.Ping(0)
 	if err != nil {
-		fmt.Println("Error pinging InfluxDB server: ", err.Error())
+		fmt.Println("Error contacting InfluxDB server:", err.Error())
+		os.Exit(1)
 	} else {
-		fmt.Println("Got reply from InfluxDB server: ", ver)
+		fmt.Println("Found InfluxDB server version", ver)
 	}
 	initHosts()
 
@@ -86,6 +87,7 @@ func initHosts() {
 			list.AddHostname(remote, tags)
 		}
 	}
+	fmt.Println("Found", list.Length(), "hosts in config file")
 }
 
 func initConnection() {

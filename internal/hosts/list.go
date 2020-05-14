@@ -18,6 +18,10 @@ func (l *List) Reset() {
 	l.Hosts = list.New()
 }
 
+func (l *List) Length() int {
+	return l.Hosts.Len()
+}
+
 func (l *List) AddIP(ip string, tags map[string]string) {
 	host := &Host{
 		IP:   ip,
