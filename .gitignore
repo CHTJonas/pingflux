@@ -16,3 +16,6 @@
 
 # Compiled output
 bin/
+
+# Configuration files
+config.yml
