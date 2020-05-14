@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,16 +20,15 @@ var conn *influx.Connection
 func main() {
 	count := 3
 	readConfigFile()
-	initHosts()
 	initConnection()
 	defer conn.Close()
-
 	_, ver, err := conn.Ping(0)
 	if err != nil {
 		fmt.Println("Error pinging InfluxDB server: ", err.Error())
 	} else {
 		fmt.Println("Got reply from InfluxDB server: ", ver)
 	}
+	initHosts()
 
 	for e := list.Hosts.Front(); e != nil; e = e.Next() {
 		r := rand.Intn(1000)
@@ -73,6 +73,21 @@ func readConfigFile() {
 	}
 }
 
+func initHosts() {
+	list = hosts.NewList()
+	for remote, props := range viper.GetStringMap("hosts") {
+		tags := map[string]string{}
+		for tag, value := range props.(map[string]interface{}) {
+			tags[tag] = value.(string)
+		}
+		if net.ParseIP(remote) != nil {
+			list.AddIP(remote, tags)
+		} else {
+			list.AddHostname(remote, tags)
+		}
+	}
+}
+
 func initConnection() {
 	addr := ""
 	if viper.GetBool("datastore.influx.secure") {
@@ -82,43 +97,6 @@ func initConnection() {
 	}
 	addr += viper.GetString("datastore.influx.hostname") + ":" + viper.GetString("datastore.influx.port")
 	db := viper.GetString("datastore.influx.database")
+	fmt.Printf("Connecting to %s on %s\n", db, addr)
 	conn = influx.New(addr, db)
-}
-
-func initHosts() {
-	list = hosts.NewList()
-
-	IPAddresseMappings := []map[string]map[string]string{{
-		"192.168.86.5": {
-			"network": "JFDN",
-			"server":  "storage",
-		},
-		"146.97.41.38": {
-			"network": "CUDN",
-			"router":  "border",
-		},
-		"146.97.41.46": {
-			"network": "CUDN",
-			"router":  "border",
-		},
-	}}
-	for _, mapping := range IPAddresseMappings {
-		for ip, tags := range mapping {
-			list.AddIP(ip, tags)
-		}
-	}
-
-	hostnameMappings := []map[string]map[string]string{
-		{
-			"gw.eng.cam.ac.uk": {
-				"network": "CUDN",
-				"router":  "institution",
-			},
-		},
-	}
-	for _, mapping := range hostnameMappings {
-		for hostname, tags := range mapping {
-			list.AddHostname(hostname, tags)
-		}
-	}
 }
