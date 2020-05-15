@@ -2,6 +2,10 @@ package hosts
 
 import (
 	"container/list"
+	"math/rand"
+	"time"
+
+	ping "github.com/stenya/go-ping"
 )
 
 type List struct {
@@ -36,4 +40,22 @@ func (l *List) AddHostname(hostname string, tags map[string]string) {
 		Tags:     tags,
 	}
 	l.Hosts.PushBack(host)
+}
+
+func (l *List) Ping(count int, callback func([]*ping.Statistics, *Host)) {
+	for e := l.Hosts.Front(); e != nil; e = e.Next() {
+		r := rand.Intn(1000)
+		d := time.Duration(r)
+		time.Sleep(d * time.Millisecond)
+		go func(host *Host, count int) {
+			ticker := time.NewTicker(10 * time.Second)
+			for {
+				select {
+				case <-ticker.C:
+					statistics := host.Ping(count)
+					callback(statistics, host)
+				}
+			}
+		}(e.Value.(*Host), count)
+	}
 }
