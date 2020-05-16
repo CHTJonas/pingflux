@@ -18,6 +18,7 @@ var conn *influx.Connection
 
 func main() {
 	count := 3
+	interval := 60
 	readConfigFile()
 	initConnection()
 	defer conn.Close()
@@ -30,7 +31,7 @@ func main() {
 	}
 	initHosts()
 
-	list.Ping(count, func(statistics []*ping.Statistics, host *hosts.Host) {
+	list.Ping(count, interval, func(statistics []*ping.Statistics, host *hosts.Host) {
 		conn.Store(statistics, host)
 	})
 

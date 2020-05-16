@@ -42,19 +42,18 @@ func (l *List) AddHostname(hostname string, tags map[string]string) {
 	l.Hosts.PushBack(host)
 }
 
-func (l *List) Ping(count int, callback func([]*ping.Statistics, *Host)) {
+func (l *List) Ping(count int, interval int, callback func([]*ping.Statistics, *Host)) {
+	offset := interval / l.Length()
 	for e := l.Hosts.Front(); e != nil; e = e.Next() {
-		r := rand.Intn(1000)
-		d := time.Duration(r)
-		time.Sleep(d * time.Millisecond)
+		time.Sleep(time.Duration(offset) * time.Second)
 		go func(host *Host, count int) {
-			ticker := time.NewTicker(10 * time.Second)
-			for {
-				select {
-				case <-ticker.C:
-					statistics := host.Ping(count)
-					callback(statistics, host)
-				}
+			dur := time.Duration(interval) * time.Second
+			ticker := time.NewTicker(dur)
+			for range ticker.C {
+				drift := time.Duration(rand.Intn(500))
+				time.Sleep(drift * time.Millisecond)
+				statistics := host.Ping(count)
+				callback(statistics, host)
 			}
 		}(e.Value.(*Host), count)
 	}
