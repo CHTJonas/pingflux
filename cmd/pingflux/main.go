@@ -17,9 +17,7 @@ var list *hosts.List
 var conn *influx.Connection
 
 func main() {
-	count := 3
-	interval := 60
-	readConfigFile()
+	count, interval := readConfig()
 	initConnection()
 	defer conn.Close()
 	_, ver, err := conn.Ping(0)
@@ -43,7 +41,7 @@ func main() {
 	}
 }
 
-func readConfigFile() {
+func readConfig() (int, int) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("/etc/pingflux/")
@@ -58,6 +56,7 @@ func readConfigFile() {
 			panic(err)
 		}
 	}
+	return viper.GetInt("options.count"), viper.GetInt("options.interval")
 }
 
 func initHosts() {
