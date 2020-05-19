@@ -21,7 +21,8 @@ func (h *Host) GetName() string {
 	if h.Hostname != "" {
 		return h.Hostname
 	}
-	return h.IP
+	names := h.ReverseIP()
+	return names[0]
 }
 
 func (h *Host) GetTags() map[string]string {
@@ -52,6 +53,14 @@ func (h *Host) ResolveHostname() []string {
 		panic(err)
 	}
 	return addrs
+}
+
+func (h *Host) ReverseIP() []string {
+	names, err := net.LookupAddr(h.IP)
+	if err != nil {
+		panic(err)
+	}
+	return names
 }
 
 func (h *Host) Ping(count int) []*ping.Statistics {
