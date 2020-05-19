@@ -1,6 +1,7 @@
 package main
 
 import (
+	"container/list"
 	"fmt"
 	"net"
 	"os"
@@ -10,17 +11,16 @@ import (
 	"github.com/chtjonas/pingflux/internal/hosts"
 	"github.com/chtjonas/pingflux/internal/influx"
 	"github.com/spf13/viper"
-	"github.com/stenya/go-ping"
 )
 
-var list *hosts.List
-var conn *influx.Connection
+var hostList *hosts.List
+var connection *influx.Connection
 
 func main() {
 	count, interval := readConfig()
 	initConnection()
-	defer conn.Close()
-	_, ver, err := conn.Ping(0)
+	defer connection.Close()
+	_, ver, err := connection.Ping(0)
 	if err != nil {
 		fmt.Println("Error contacting InfluxDB server:", err.Error())
 		os.Exit(1)
@@ -29,16 +29,32 @@ func main() {
 	}
 	initHosts()
 
-	list.Ping(count, interval, func(statistics []*ping.Statistics, host *hosts.Host) {
-		conn.Store(statistics, host)
-	})
-
+	resultList := list.New()
+	resultChan := make(chan *hosts.Result, 3)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
-	for range stop {
-		os.Exit(0)
+
+	hostList.Ping(count, interval, resultChan)
+	for {
+		select {
+		case result := <-resultChan:
+			resultList.PushBack(result)
+			if resultList.Len() > 10 {
+				storeData(resultList)
+			}
+		case <-stop:
+			storeData(resultList)
+			os.Exit(0)
+		}
 	}
+}
+
+func storeData(resultList *list.List) {
+	l := list.New()
+	l.PushBackList(resultList)
+	go connection.Store(l)
+	resultList.Init()
 }
 
 func readConfig() (int, int) {
@@ -60,19 +76,19 @@ func readConfig() (int, int) {
 }
 
 func initHosts() {
-	list = hosts.NewList()
+	hostList = hosts.NewList()
 	for remote, props := range viper.GetStringMap("hosts") {
 		tags := map[string]string{}
 		for tag, value := range props.(map[string]interface{}) {
 			tags[tag] = value.(string)
 		}
 		if net.ParseIP(remote) != nil {
-			list.AddIP(remote, tags)
+			hostList.AddIP(remote, tags)
 		} else {
-			list.AddHostname(remote, tags)
+			hostList.AddHostname(remote, tags)
 		}
 	}
-	fmt.Println("Found", list.Length(), "hosts in config file")
+	fmt.Println("Found", hostList.Length(), "hosts in config file")
 }
 
 func initConnection() {
@@ -85,5 +101,5 @@ func initConnection() {
 	addr += viper.GetString("datastore.influx.hostname") + ":" + viper.GetString("datastore.influx.port")
 	db := viper.GetString("datastore.influx.database")
 	fmt.Printf("Connecting to %s on %s\n", db, addr)
-	conn = influx.New(addr, db)
+	connection = influx.New(addr, db)
 }

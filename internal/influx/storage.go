@@ -1,6 +1,7 @@
 package influx
 
 import (
+	"container/list"
 	"time"
 
 	"github.com/chtjonas/pingflux/internal/hosts"
@@ -8,7 +9,7 @@ import (
 	ping "github.com/stenya/go-ping"
 )
 
-func (conn *Connection) Store(statistics []*ping.Statistics, host *hosts.Host) {
+func (conn *Connection) Store(resultList *list.List) {
 	batch, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  conn.database,
 		Precision: "s",
@@ -16,9 +17,12 @@ func (conn *Connection) Store(statistics []*ping.Statistics, host *hosts.Host) {
 	if err != nil {
 		panic(err)
 	}
-	for _, stats := range statistics {
-		batch.AddPoint(generateRTTPoint(stats, host))
-		batch.AddPoint(generatePacketsPoint(stats, host))
+	for e := resultList.Front(); e != nil; e = e.Next() {
+		result := e.Value.(*hosts.Result)
+		for _, stats := range result.Stats {
+			batch.AddPoint(generateRTTPoint(stats, result.Host))
+			batch.AddPoint(generatePacketsPoint(stats, result.Host))
+		}
 	}
 	conn.client.Write(batch)
 }
