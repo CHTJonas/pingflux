@@ -52,7 +52,8 @@ func (l *List) Ping(count int, interval int, resultChan chan *Result) {
 				time.Sleep(drift * time.Millisecond)
 				resultChan <- &Result{
 					Stats: host.Ping(count),
-					Host:  host,
+					Tags:  host.GetTags(),
+					When:  time.Now().UTC(),
 				}
 			}
 		}(e.Value.(*Host), count)
