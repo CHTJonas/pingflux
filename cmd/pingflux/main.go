@@ -79,8 +79,10 @@ func initHosts() {
 	hostList = hosts.NewList()
 	for remote, props := range viper.GetStringMap("hosts") {
 		tags := map[string]string{}
-		for tag, value := range props.(map[string]interface{}) {
-			tags[tag] = value.(string)
+		if props != nil {
+			for tag, value := range props.(map[string]interface{}) {
+				tags[tag] = value.(string)
+			}
 		}
 		if net.ParseIP(remote) != nil {
 			hostList.AddIP(remote, tags)
