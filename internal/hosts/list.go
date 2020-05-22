@@ -41,9 +41,10 @@ func (l *List) AddHostname(hostname string, tags map[string]string) {
 }
 
 func (l *List) Ping(count int, interval int, resultChan chan *Result) {
-	offset := interval / l.Length()
+	offset := float64(interval) / float64(l.Length())
+	duration := time.Duration(offset * 1000000000)
 	for e := l.Hosts.Front(); e != nil; e = e.Next() {
-		time.Sleep(time.Duration(offset) * time.Second)
+		time.Sleep(duration)
 		go func(host *Host, count int) {
 			dur := time.Duration(interval) * time.Second
 			ticker := time.NewTicker(dur)
