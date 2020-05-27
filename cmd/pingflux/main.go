@@ -41,20 +41,22 @@ func main() {
 		case result := <-resultChan:
 			resultList.PushBack(result)
 			if resultList.Len() > 10 {
-				storeData(resultList)
+				l := flushData(resultList)
+				go connection.Store(l)
 			}
 		case <-stop:
-			storeData(resultList)
+			fmt.Println("Received shutdown signal...")
+			connection.Store(flushData(resultList))
 			os.Exit(0)
 		}
 	}
 }
 
-func storeData(resultList *list.List) {
+func flushData(resultList *list.List) *list.List {
 	l := list.New()
 	l.PushBackList(resultList)
-	go connection.Store(l)
 	resultList.Init()
+	return l
 }
 
 func readConfig() (int, int) {
