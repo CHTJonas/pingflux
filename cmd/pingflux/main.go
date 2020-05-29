@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/chtjonas/pingflux/internal/hosts"
@@ -79,17 +80,20 @@ func readConfig() (int, int) {
 
 func initHosts() {
 	hostList = hosts.NewList()
-	for remote, props := range viper.GetStringMap("hosts") {
+	for _, g := range viper.Get("groups").([]interface{}) {
+		group := g.(map[interface{}]interface{})
 		tags := map[string]string{}
-		if props != nil {
-			for tag, value := range props.(map[string]interface{}) {
-				tags[tag] = value.(string)
+		for k, v := range group {
+			if k.(string) != "hosts" {
+				tags[k.(string)] = v.(string)
 			}
 		}
-		if net.ParseIP(remote) != nil {
-			hostList.AddIP(remote, tags)
-		} else {
-			hostList.AddHostname(remote, tags)
+		for _, remote := range strings.Split(group["hosts"].(string), " ") {
+			if net.ParseIP(remote) != nil {
+				hostList.AddIP(remote, tags)
+			} else {
+				hostList.AddHostname(remote, tags)
+			}
 		}
 	}
 	fmt.Println("Found", hostList.Length(), "hosts in config file")
