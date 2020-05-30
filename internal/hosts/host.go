@@ -21,7 +21,10 @@ func (h *Host) GetName() string {
 	if h.Hostname != "" {
 		return h.Hostname
 	}
-	names := h.ReverseIP()
+	names, err := h.ReverseIP()
+	if err != nil {
+		return h.IP
+	}
 	return names[0]
 }
 
@@ -39,7 +42,10 @@ func (h *Host) GetEndpoints() []*Endpoint {
 		endpoint := NewEndpoint(h.IP)
 		return []*Endpoint{endpoint}
 	}
-	addrs := h.ResolveHostname()
+	addrs, err := h.ResolveHostname()
+	if err != nil {
+		return []*Endpoint{}
+	}
 	endpoints := make([]*Endpoint, len(addrs))
 	for i, addr := range addrs {
 		endpoints[i] = NewEndpoint(addr)
@@ -47,20 +53,20 @@ func (h *Host) GetEndpoints() []*Endpoint {
 	return endpoints
 }
 
-func (h *Host) ResolveHostname() []string {
+func (h *Host) ResolveHostname() ([]string, error) {
 	addrs, err := net.LookupHost(h.Hostname)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return addrs
+	return addrs, nil
 }
 
-func (h *Host) ReverseIP() []string {
+func (h *Host) ReverseIP() ([]string, error) {
 	names, err := net.LookupAddr(h.IP)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return names
+	return names, nil
 }
 
 func (h *Host) Ping(count int) []*ping.Statistics {
