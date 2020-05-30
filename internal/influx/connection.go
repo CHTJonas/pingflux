@@ -11,21 +11,25 @@ type Connection struct {
 	database string
 }
 
-func New(addr string, db string) *Connection {
+func New(addr string, db string) (*Connection, error) {
 	conn := &Connection{}
-	conn.Open(addr, db)
-	return conn
+	err := conn.Open(addr, db)
+	if err != nil {
+		return nil, err
+	}
+	return conn, nil
 }
 
-func (conn *Connection) Open(addr string, db string) {
+func (conn *Connection) Open(addr string, db string) error {
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr: addr,
 	})
 	if err != nil {
-		panic(err)
+		return err
 	}
 	conn.client = c
 	conn.database = db
+	return nil
 }
 
 func (conn *Connection) Close() {
