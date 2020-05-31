@@ -10,6 +10,11 @@ import (
 )
 
 func (conn *Connection) Store(resultList *list.List) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Failed to store data:", r)
+		}
+	}()
 	batch, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  conn.database,
 		Precision: "s",
