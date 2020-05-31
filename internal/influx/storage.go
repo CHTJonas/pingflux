@@ -20,8 +20,10 @@ func (conn *Connection) Store(resultList *list.List) {
 	for e := resultList.Front(); e != nil; e = e.Next() {
 		result := e.Value.(*hosts.Result)
 		for _, stats := range result.Stats {
-			batch.AddPoint(generateRTTPoint(stats, result.Tags, result.When))
-			batch.AddPoint(generatePacketsPoint(stats, result.Tags, result.When))
+			if stats != nil {
+				batch.AddPoint(generateRTTPoint(stats, result.Tags, result.When))
+				batch.AddPoint(generatePacketsPoint(stats, result.Tags, result.When))
+			}
 		}
 	}
 	conn.client.Write(batch)

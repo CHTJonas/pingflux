@@ -16,15 +16,15 @@ func NewEndpoint(ip string) *Endpoint {
 	}
 }
 
-func (e *Endpoint) Ping(count int) *ping.Statistics {
+func (e *Endpoint) Ping(count int) (*ping.Statistics, error) {
 	pinger, err := ping.NewPinger(e.IP)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	pinger.SetPrivileged(true)
 	pinger.Count = count
 	pinger.Interval = time.Second
 	pinger.Timeout = time.Second * 10
 	pinger.Run() // blocks until finished
-	return pinger.Statistics()
+	return pinger.Statistics(), nil
 }

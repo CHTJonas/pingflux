@@ -77,7 +77,12 @@ func (h *Host) Ping(count int) []*ping.Statistics {
 		wg.Add(1)
 		go func(i int, e *Endpoint) {
 			defer wg.Done()
-			statistics[i] = e.Ping(count)
+			stats, err := e.Ping(count)
+			if err != nil {
+				fmt.Println("Failed to ping", e.IP, err)
+			} else {
+				statistics[i] = stats
+			}
 		}(i, e)
 	}
 	wg.Wait()
