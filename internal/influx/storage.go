@@ -15,13 +15,10 @@ func (conn *Connection) Store(resultList *list.List) {
 			fmt.Println("Failed to store data:", r)
 		}
 	}()
-	batch, err := client.NewBatchPoints(client.BatchPointsConfig{
+	batch, _ := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  conn.database,
 		Precision: "s",
 	})
-	if err != nil {
-		panic(err)
-	}
 	for e := resultList.Front(); e != nil; e = e.Next() {
 		result := e.Value.(*hosts.Result)
 		for _, stats := range result.Stats {
