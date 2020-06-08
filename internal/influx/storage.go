@@ -9,7 +9,7 @@ import (
 	ping "github.com/stenya/go-ping"
 )
 
-func (conn *Connection) Store(resultList *list.List) {
+func (conn *Connection) Store(resultList *list.List) error {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Failed to store data:", r)
@@ -28,7 +28,7 @@ func (conn *Connection) Store(resultList *list.List) {
 			}
 		}
 	}
-	conn.client.Write(batch)
+	return conn.client.Write(batch)
 }
 
 func generateRTTPoint(stats *ping.Statistics, tags map[string]string, when time.Time) *client.Point {

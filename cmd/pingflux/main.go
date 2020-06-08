@@ -43,11 +43,12 @@ func main() {
 			resultList.PushBack(result)
 			if resultList.Len() > 10 {
 				l := flushData(resultList)
-				go connection.Store(l)
+				go storeData(l)
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
-			connection.Store(flushData(resultList))
+			l := flushData(resultList)
+			storeData(l)
 			os.Exit(0)
 		}
 	}
@@ -58,6 +59,13 @@ func flushData(resultList *list.List) *list.List {
 	l.PushBackList(resultList)
 	resultList.Init()
 	return l
+}
+
+func storeData(resultList *list.List) {
+	err := connection.Store(resultList)
+	if err != nil {
+		fmt.Println("Failed to store data:", err)
+	}
 }
 
 func readConfig() (int, int) {
