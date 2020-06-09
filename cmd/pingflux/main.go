@@ -8,9 +8,11 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/chtjonas/pingflux/internal/hosts"
 	"github.com/chtjonas/pingflux/internal/influx"
+	"github.com/cloudflare/backoff"
 	"github.com/spf13/viper"
 )
 
@@ -62,9 +64,14 @@ func flushData(resultList *list.List) *list.List {
 }
 
 func storeData(resultList *list.List) {
-	err := connection.Store(resultList)
-	if err != nil {
+	b := backoff.New(48*time.Hour, 2*time.Minute)
+	for {
+		err := connection.Store(resultList)
+		if err == nil {
+			break
+		}
 		fmt.Println("Failed to store data:", err)
+		<-time.After(b.Duration())
 	}
 }
 
