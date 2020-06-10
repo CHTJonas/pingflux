@@ -9,10 +9,10 @@ import (
 	ping "github.com/stenya/go-ping"
 )
 
-func (conn *Connection) Store(resultList *list.List) error {
+func (conn *Connection) Store(resultList *list.List) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("Failed to store data:", r)
+			err = r.(error)
 		}
 	}()
 	batch, _ := client.NewBatchPoints(client.BatchPointsConfig{
