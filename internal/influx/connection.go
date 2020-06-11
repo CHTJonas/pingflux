@@ -11,18 +11,20 @@ type Connection struct {
 	database string
 }
 
-func New(addr string, db string) (*Connection, error) {
+func New(addr string, db string, username string, password string) (*Connection, error) {
 	conn := &Connection{}
-	err := conn.Open(addr, db)
+	err := conn.Open(addr, db, username, password)
 	if err != nil {
 		return nil, err
 	}
 	return conn, nil
 }
 
-func (conn *Connection) Open(addr string, db string) error {
+func (conn *Connection) Open(addr string, db string, username string, password string) error {
 	c, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr: addr,
+		Addr:     addr,
+		Username: username,
+		Password: password,
 	})
 	if err != nil {
 		return err

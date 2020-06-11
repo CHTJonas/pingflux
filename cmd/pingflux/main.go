@@ -123,9 +123,11 @@ func initConnection() {
 	}
 	addr += viper.GetString("datastore.influx.hostname") + ":" + viper.GetString("datastore.influx.port")
 	db := viper.GetString("datastore.influx.database")
+	username := viper.GetString("datastore.influx.username")
+	password := viper.GetString("datastore.influx.password")
 	fmt.Printf("Connecting to %s on %s\n", db, addr)
 	var err error
-	connection, err = influx.New(addr, db)
+	connection, err = influx.New(addr, db, username, password)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(500)
