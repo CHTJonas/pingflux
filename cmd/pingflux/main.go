@@ -111,6 +111,7 @@ func initHosts() {
 			}
 		}
 	}
+	hostList.Shuffle()
 	fmt.Println("Found", hostList.Length(), "hosts in config file")
 }
 

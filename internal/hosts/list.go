@@ -60,3 +60,19 @@ func (l *List) Ping(count int, interval int, resultChan chan *Result) {
 		}(e.Value.(*Host), count)
 	}
 }
+
+func (l *List) Shuffle() {
+	length := l.Hosts.Len()
+	a := make([]*Host, length)
+	i := 0
+	for e := l.Hosts.Front(); e != nil; e = e.Next() {
+		a[i] = e.Value.(*Host)
+	}
+	rand.Shuffle(length, func(i, j int) {
+		a[i], a[j] = a[j], a[i]
+	})
+	l.Hosts.Init()
+	for _, h := range a {
+		l.Hosts.PushBack(h)
+	}
+}
