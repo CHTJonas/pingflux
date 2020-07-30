@@ -67,6 +67,7 @@ func (l *List) Shuffle() {
 	i := 0
 	for e := l.Hosts.Front(); e != nil; e = e.Next() {
 		a[i] = e.Value.(*Host)
+		i++
 	}
 	rand.Shuffle(length, func(i, j int) {
 		a[i], a[j] = a[j], a[i]
