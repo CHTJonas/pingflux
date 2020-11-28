@@ -6,7 +6,7 @@ import (
 
 	"github.com/chtjonas/pingflux/internal/hosts"
 	client "github.com/influxdata/influxdb1-client/v2"
-	ping "github.com/stenya/go-ping"
+	"github.com/go-ping/ping"
 )
 
 func (conn *Connection) Store(resultList *list.List) (err error) {

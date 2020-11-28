@@ -44,22 +44,23 @@ func main() {
 		case result := <-resultChan:
 			resultList.PushBack(result)
 			if resultList.Len() > 10 {
-				l := flushData(resultList)
+				l := cloneList(resultList)
+				resultList.Init()
 				go storeData(l)
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
-			l := flushData(resultList)
+			l := cloneList(resultList)
+			resultList.Init()
 			storeData(l)
 			os.Exit(0)
 		}
 	}
 }
 
-func flushData(resultList *list.List) *list.List {
+func cloneList(resultList *list.List) *list.List {
 	l := list.New()
 	l.PushBackList(resultList)
-	resultList.Init()
 	return l
 }
 

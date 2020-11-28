@@ -5,7 +5,7 @@ import (
 	"net"
 	"sync"
 
-	ping "github.com/stenya/go-ping"
+	"github.com/go-ping/ping"
 )
 
 type Host struct {

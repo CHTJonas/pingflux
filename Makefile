@@ -10,7 +10,7 @@ dir:
 	@if [ ! -d bin ] ; then mkdir -p bin ; fi
 
 get:
-	@$(GOGET) github.com/stenya/go-ping
+	@$(GOGET) github.com/go-ping/ping
 	@$(GOGET) github.com/influxdata/influxdb1-client/v2
 	@$(GOGET) github.com/spf13/viper
 	@$(GOGET) github.com/cloudflare/backoff

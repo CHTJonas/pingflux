@@ -3,7 +3,7 @@ package hosts
 import (
 	"time"
 
-	ping "github.com/stenya/go-ping"
+	"github.com/go-ping/ping"
 )
 
 type Result struct {
