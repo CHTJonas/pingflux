@@ -50,9 +50,7 @@ func main() {
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
-			l := cloneList(resultList)
-			resultList.Init()
-			storeData(l)
+			storeData(resultList)
 			os.Exit(0)
 		}
 	}
