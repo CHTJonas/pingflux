@@ -1,15 +1,14 @@
 package influx
 
 import (
-	"container/list"
 	"time"
 
 	"github.com/chtjonas/pingflux/internal/hosts"
-	client "github.com/influxdata/influxdb1-client/v2"
 	"github.com/go-ping/ping"
+	client "github.com/influxdata/influxdb1-client/v2"
 )
 
-func (conn *Connection) Store(resultList *list.List) (err error) {
+func (conn *Connection) Store(resultsArrPtr *[]*hosts.Result) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = r.(error)
@@ -19,8 +18,12 @@ func (conn *Connection) Store(resultList *list.List) (err error) {
 		Database:  conn.database,
 		Precision: "s",
 	})
-	for e := resultList.Front(); e != nil; e = e.Next() {
-		result := e.Value.(*hosts.Result)
+	resultsArr := *resultsArrPtr
+	for i := 0; i < len(resultsArr); i++ {
+		result := resultsArr[i]
+		if result == nil {
+			break
+		}
 		for _, stats := range result.Stats {
 			if stats != nil {
 				batch.AddPoint(generateRTTPoint(stats, result.Tags, result.When))

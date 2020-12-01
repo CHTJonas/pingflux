@@ -1,7 +1,6 @@
 package main
 
 import (
-	"container/list"
 	"fmt"
 	"net"
 	"os"
@@ -32,7 +31,8 @@ func main() {
 	}
 	initHosts()
 
-	resultList := list.New()
+	resultsArr := make([]*hosts.Result, 10)
+	n := 0
 	resultChan := make(chan *hosts.Result, 3)
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -42,30 +42,24 @@ func main() {
 	for {
 		select {
 		case result := <-resultChan:
-			resultList.PushBack(result)
-			if resultList.Len() > 10 {
-				l := cloneList(resultList)
-				resultList.Init()
-				go storeData(l)
+			resultsArr[n] = result
+			n = n + 1
+			if n > 9 {
+				storeData(&resultsArr)
+				resultsArr = make([]*hosts.Result, 10)
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
-			storeData(resultList)
+			storeData(&resultsArr)
 			os.Exit(0)
 		}
 	}
 }
 
-func cloneList(resultList *list.List) *list.List {
-	l := list.New()
-	l.PushBackList(resultList)
-	return l
-}
-
-func storeData(resultList *list.List) {
+func storeData(resultsArrPtr *[]*hosts.Result) {
 	b := backoff.New(48*time.Hour, 2*time.Minute)
 	for {
-		err := connection.Store(resultList)
+		err := connection.Store(resultsArrPtr)
 		if err == nil {
 			break
 		}
