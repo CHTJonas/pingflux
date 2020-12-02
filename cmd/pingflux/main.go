@@ -31,22 +31,26 @@ func main() {
 	}
 	initHosts()
 
-	resultsArr := make([]*hosts.Result, 10)
 	n := 0
-	resultChan := make(chan *hosts.Result, 3)
+	size := 10
+	resultsArr := make([]*hosts.Result, size)
+	resultChan := make(chan *hosts.Result, size)
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
 
 	hostList.Ping(count, interval, resultChan)
+
 	for {
 		select {
 		case result := <-resultChan:
 			resultsArr[n] = result
 			n = n + 1
-			if n > 9 {
-				storeData(&resultsArr)
-				resultsArr = make([]*hosts.Result, 10)
+			if n >= size {
+				go storeData(&resultsArr)
+				n = 0
+				resultsArr = make([]*hosts.Result, size)
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
