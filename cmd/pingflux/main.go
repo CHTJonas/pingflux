@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -33,8 +34,14 @@ func main() {
 
 	n := 0
 	size := 10
-	resultsArr := make([]*hosts.Result, size)
 	resultChan := make(chan *hosts.Result, size)
+	resultsArrPool := sync.Pool{
+		New: func() interface{} {
+			arr := make([]*hosts.Result, size)
+			return &arr
+		},
+	}
+	resultsArr := *resultsArrPool.Get().(*[]*hosts.Result)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -47,10 +54,16 @@ func main() {
 		case result := <-resultChan:
 			resultsArr[n] = result
 			n = n + 1
-			if n >= size {
-				go storeData(&resultsArr)
+			if n == size {
+				go func(resultsArrPtr *[]*hosts.Result) {
+					storeData(resultsArrPtr)
+					for i := 0; i < size; i++ {
+						(*resultsArrPtr)[i] = nil
+					}
+					resultsArrPool.Put(resultsArrPtr)
+				}(&resultsArr)
 				n = 0
-				resultsArr = make([]*hosts.Result, size)
+				resultsArr = *resultsArrPool.Get().(*[]*hosts.Result)
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
