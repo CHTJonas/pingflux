@@ -41,7 +41,7 @@ func main() {
 			return &arr
 		},
 	}
-	resultsArr := *resultsArrPool.Get().(*[]*hosts.Result)
+	resultsArrPtr := resultsArrPool.Get().(*[]*hosts.Result)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -52,22 +52,22 @@ func main() {
 	for {
 		select {
 		case result := <-resultChan:
-			resultsArr[n] = result
+			(*resultsArrPtr)[n] = result
 			n = n + 1
 			if n == size {
-				go func(resultsArrPtr *[]*hosts.Result) {
-					storeData(resultsArrPtr)
+				go func(ptr *[]*hosts.Result) {
+					storeData(ptr)
 					for i := 0; i < size; i++ {
-						(*resultsArrPtr)[i] = nil
+						(*ptr)[i] = nil
 					}
-					resultsArrPool.Put(resultsArrPtr)
-				}(&resultsArr)
+					resultsArrPool.Put(ptr)
+				}(resultsArrPtr)
 				n = 0
-				resultsArr = *resultsArrPool.Get().(*[]*hosts.Result)
+				resultsArrPtr = resultsArrPool.Get().(*[]*hosts.Result)
 			}
 		case <-stop:
 			fmt.Println("Received shutdown signal...")
-			storeData(&resultsArr)
+			storeData(resultsArrPtr)
 			os.Exit(0)
 		}
 	}
