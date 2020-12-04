@@ -47,7 +47,7 @@ func main() {
 	signal.Notify(stop, os.Interrupt)
 	signal.Notify(stop, syscall.SIGTERM)
 
-	hostList.Ping(count, interval, resultChan)
+	go hostList.Ping(count, interval, resultChan)
 
 	for {
 		select {
