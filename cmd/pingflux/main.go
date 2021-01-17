@@ -19,6 +19,9 @@ import (
 var hostList *hosts.List
 var connection *influx.Connection
 
+// Software version defaults to the value below but is overridden by the compiler in Makefile.
+var version = "dev-edge"
+
 func main() {
 	count, interval := readConfig()
 	initConnection()
