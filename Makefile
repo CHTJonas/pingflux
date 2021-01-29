@@ -1,7 +1,7 @@
 SHELL := bash
 .ONESHELL:
 
-VER=$(shell git describe --tags)
+VER=$(shell git describe --tags --always --dirty)
 GO=$(shell which go)
 GOMOD=$(GO) mod
 GOFMT=$(GO) fmt
