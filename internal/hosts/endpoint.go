@@ -1,6 +1,7 @@
 package hosts
 
 import (
+	"net"
 	"time"
 
 	"github.com/go-ping/ping"
@@ -23,8 +24,18 @@ func (e *Endpoint) Ping(count int) (*ping.Statistics, error) {
 	}
 	pinger.SetPrivileged(true)
 	pinger.Count = count
+	if e.isIPv4() {
+		pinger.Size = 40
+	} else {
+		pinger.Size = 1232
+	}
 	pinger.Interval = time.Second
 	pinger.Timeout = time.Second * 10
 	pinger.Run() // blocks until finished
 	return pinger.Statistics(), nil
+}
+
+func (e *Endpoint) isIPv4() bool {
+	ip := net.ParseIP(e.IP)
+	return len(ip.To4()) == net.IPv4len
 }
