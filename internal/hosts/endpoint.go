@@ -37,7 +37,10 @@ func (e *Endpoint) Ping(count int) (*ping.Statistics, error) {
 	pinger.Size = 56
 	pinger.Interval = time.Second
 	pinger.Timeout = time.Second * 10
-	pinger.Run() // blocks until finished
+	err = pinger.Run() // blocks until finished
+	if err != nil {
+		return nil, err
+	}
 	return pinger.Statistics(), nil
 }
 
