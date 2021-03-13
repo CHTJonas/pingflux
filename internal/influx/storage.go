@@ -22,13 +22,12 @@ func (conn *Connection) Store(resultsArrPtr *[]*hosts.Result) (err error) {
 	for i := 0; i < len(resultsArr); i++ {
 		result := resultsArr[i]
 		if result == nil {
-			break
+			continue
 		}
-		for _, stats := range result.Stats {
-			if stats != nil {
-				batch.AddPoint(generateRTTPoint(stats, result.Tags, result.When))
-				batch.AddPoint(generatePacketsPoint(stats, result.Tags, result.When))
-			}
+		stats := result.Stats
+		if stats != nil {
+			batch.AddPoint(generateRTTPoint(stats, result.Tags, result.When))
+			batch.AddPoint(generatePacketsPoint(stats, result.Tags, result.When))
 		}
 	}
 	return conn.client.Write(batch)

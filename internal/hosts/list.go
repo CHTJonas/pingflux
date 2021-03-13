@@ -51,10 +51,9 @@ func (l *List) Ping(count int, interval int, resultChan chan *Result) {
 			for range ticker.C {
 				drift := time.Duration(rand.Intn(500))
 				time.Sleep(drift * time.Millisecond)
-				resultChan <- &Result{
-					Stats: host.Ping(count),
-					Tags:  host.GetTags(),
-					When:  time.Now().UTC(),
+				results := *host.Ping(count)
+				for _, result := range results {
+					resultChan <- result
 				}
 			}
 		}(e.Value.(*Host), count)

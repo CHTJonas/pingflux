@@ -7,7 +7,7 @@ import (
 )
 
 type Result struct {
-	Stats []*ping.Statistics
+	Stats *ping.Statistics
 	Tags  map[string]string
 	When  time.Time
 }

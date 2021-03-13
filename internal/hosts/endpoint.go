@@ -17,6 +17,16 @@ func NewEndpoint(ip string) *Endpoint {
 	}
 }
 
+func (e *Endpoint) GetTags() map[string]string {
+	tags := make(map[string]string)
+	if e.IsIPv4() {
+		tags["protocol"] = "ICMPv4"
+	} else {
+		tags["protocol"] = "ICMPv6"
+	}
+	return tags
+}
+
 func (e *Endpoint) Ping(count int) (*ping.Statistics, error) {
 	pinger, err := ping.NewPinger(e.IP)
 	if err != nil {

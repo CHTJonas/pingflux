@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
-
-	"github.com/go-ping/ping"
+	"time"
 )
 
 type Host struct {
@@ -70,22 +69,31 @@ func (h *Host) ReverseIP() ([]string, error) {
 	return names, nil
 }
 
-func (h *Host) Ping(count int) []*ping.Statistics {
+func (h *Host) Ping(count int) *[]*Result {
 	var wg sync.WaitGroup
 	endpoints := h.GetEndpoints()
-	statistics := make([]*ping.Statistics, len(endpoints))
+	results := make([]*Result, len(endpoints))
 	for i, e := range endpoints {
 		wg.Add(1)
 		go func(i int, e *Endpoint) {
 			defer wg.Done()
+			tags := h.GetTags()
+			for k, v := range e.GetTags() {
+				tags[k] = v
+			}
+			when := time.Now().UTC()
 			stats, err := e.Ping(count)
 			if err != nil {
 				fmt.Println("Failed to ping", e.IP, err)
 			} else {
-				statistics[i] = stats
+				results[i] = &Result{
+					Stats: stats,
+					Tags:  tags,
+					When:  when,
+				}
 			}
 		}(i, e)
 	}
 	wg.Wait()
-	return statistics
+	return &results
 }

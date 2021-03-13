@@ -42,8 +42,7 @@ func main() {
 	}
 	initHosts()
 
-	n := 0
-	size := 10
+	size := 25
 	resultChan := make(chan *hosts.Result, size)
 	resultsArrPool := sync.Pool{
 		New: func() interface{} {
@@ -51,7 +50,6 @@ func main() {
 			return &arr
 		},
 	}
-	resultsArrPtr := resultsArrPool.Get().(*[]*hosts.Result)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -59,11 +57,13 @@ func main() {
 
 	go hostList.Ping(count, interval, resultChan)
 
+	n := 0
+	resultsArrPtr := resultsArrPool.Get().(*[]*hosts.Result)
 	for {
 		select {
 		case result := <-resultChan:
 			(*resultsArrPtr)[n] = result
-			n = n + 1
+			n++
 			if n == size {
 				go func(ptr *[]*hosts.Result) {
 					storeData(ptr)
