@@ -43,13 +43,19 @@ build/linux/amd64: dir mod
 
 build/linux: build/linux/armv7 build/linux/arm64 build/linux/386 build/linux/amd64
 
+build/darwin/arm64: dir mod
+	export CGO_ENABLED=0
+	export GOOS=darwin
+	export GOARCH=arm64
+	$(GOBUILD) -o bin/pingflux-darwin-$(VER:v%=%)-arm64 cmd/pingflux/main.go
+
 build/darwin/amd64: dir mod
 	export CGO_ENABLED=0
 	export GOOS=darwin
 	export GOARCH=amd64
 	$(GOBUILD) -o bin/pingflux-darwin-$(VER:v%=%)-amd64 cmd/pingflux/main.go
 
-build/darwin: build/darwin/amd64
+build/darwin: build/darwin/arm64 build/darwin/amd64
 
 build/windows/amd64: dir mod
 	export CGO_ENABLED=0
