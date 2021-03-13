@@ -22,6 +22,13 @@ var connection *influx.Connection
 // Software version defaults to the value below but is overridden by the compiler in Makefile.
 var version = "dev-edge"
 
+func init() {
+	if os.Geteuid() == 0 {
+		fmt.Println("WARNING: Running pingflux as root is strongly discouraged")
+		fmt.Println("WARNING: You should set the CAP_NET_RAW privilege instead")
+	}
+}
+
 func main() {
 	count, interval := readConfig()
 	initConnection()

@@ -2,6 +2,8 @@
 
 pingflux is a small application written in Go that measures the ICMP round-trip time and packet loss between the local host and a set of remote endpoints. It then stores these data in an InfluxDB database.
 
+On Linux and macOS you will need to run the binary with `CAP_NET_RAW` privileges in order to send ICMP packets (running as root is strongly discouraged). You can do this by running `sudo setcap cap_net_raw=+ep /usr/local/bin/pingflux` in a terminal.
+
 ## Usage
 
 pingflux loads its configuration settings by looking for a `config.yml` file in either `/etc/pingflux/`, `$HOME/.pingflux` or the current working directory in that order of precedence. Remote hosts are listed in groups which share a common set of key-value tags in InfluxDB. The number of pings sent to each host and the interval in seconds at which these pings are sent to each host are configurable using the `count` and `interval` options respectively. A count of 10 at an interval of 60 means that every 10 pings will be sent in quick succession to each host every 60 seconds.
