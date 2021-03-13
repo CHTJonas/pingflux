@@ -1,10 +1,10 @@
 # Pingflux
 
-pingflux is a small application written in Go that measures the ICMP round-trip time and packet loss between the local host and a set of remote endpoints. It then stores these data in an InfluxDB database.
-
-On Linux and macOS you will need to run the binary with `CAP_NET_RAW` privileges in order to send ICMP packets (running as root is strongly discouraged). You can do this by running `sudo setcap cap_net_raw=+ep /usr/local/bin/pingflux` in a terminal.
+pingflux is a small application written in Go that measures the ICMP round-trip time and packet loss between the local host and a set of remote endpoints. It then stores these data in an InfluxDB database. IP addresses are pinged individually whereas hostnames are first resolved, each and every IPv4 or IPv6 address then being pinged concurrently.
 
 ## Usage
+
+On Linux and macOS you will need to run the binary with `CAP_NET_RAW` privileges in order to send ICMP packets (running as root is strongly discouraged). You can do this by running `sudo setcap cap_net_raw=+ep /usr/local/bin/pingflux` in a terminal.
 
 pingflux loads its configuration settings by looking for a `config.yml` file in either `/etc/pingflux/`, `$HOME/.pingflux` or the current working directory in that order of precedence. Remote hosts are listed in groups which share a common set of key-value tags in InfluxDB. The number of pings sent to each host and the interval in seconds at which these pings are sent to each host are configurable using the `count` and `interval` options respectively. A count of 10 at an interval of 60 means that every 10 pings will be sent in quick succession to each host every 60 seconds.
 
@@ -40,13 +40,21 @@ groups:
       9.9.9.9
 ```
 
-## Compiling
+## Installation
 
-It should be relatively simple to checkout and build the code, assuming you have a suitable [Go toolchain installed](https://golang.org/doc/install). Running the following commands in a terminal will compile binaries for various operating systems and processor architectures and place them in directories in `./bin`:
+Pre-built binaries for a variety of operating systems and architectures are available to download from [GitHub Releases](https://github.com/CHTJonas/pingflux/releases). If you wish to compile from source then you will need a suitable [Go toolchain installed](https://golang.org/doc/install). After that just clone the project using Git and run Make! Cross-compilation is easy in Go so by default we build for all targets and place the resulting executables in `./bin`:
 
 ```bash
 git checkout https://github.com/CHTJonas/pingflux.git
+cd pingflux
 make clean && make all
+```
+
+For Linux users there is a [sample systemd service file](https://github.com/CHTJonas/pingflux/blob/master/pingflux.service) available which you can place at `/etc/systemd/system/pingflux.service` and then activate:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now pingflux
 ```
 
 ---

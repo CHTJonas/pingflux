@@ -1,0 +1,38 @@
+[Unit]
+Description=Pingflux ICMP daemon
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=pingflux
+Group=pingflux
+Type=simple
+ExecStart=/usr/local/bin/pingflux
+Restart=always
+
+# Capabilities
+CapabilityBoundingSet=CAP_NET_RAW
+AmbientCapabilities=CAP_NET_RAW
+
+# Security
+NoNewPrivileges=yes
+
+# Process properties
+KeyringMode=private
+
+# Sandboxing
+ProtectHome=yes
+ProtectSystem=strict
+PrivateTmp=yes
+ProtectHostname=true
+ProtectClock=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target
