@@ -51,6 +51,7 @@ func generatePacketsPoint(stats *ping.Statistics, tags map[string]string, when t
 		"sent": stats.PacketsSent,
 		"recv": stats.PacketsRecv,
 		"loss": stats.PacketLoss,
+		"dup":  stats.PacketsRecvDuplicates,
 	}
 	point, err := client.NewPoint("packets", tags, fields, when)
 	if err != nil {
