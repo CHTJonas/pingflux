@@ -33,6 +33,7 @@ func (e *Endpoint) Ping(count int) (*ping.Statistics, error) {
 		return nil, err
 	}
 	pinger.SetPrivileged(true)
+	pinger.RecordRtts = false
 	pinger.Count = count
 	pinger.Size = 56
 	pinger.Interval = time.Second
