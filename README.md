@@ -1,6 +1,6 @@
 # Pingflux
 
-pingflux is a small application written in Go that measures the ICMP round-trip time and packet loss between the local host and a set of remote endpoints. It then stores these data in an InfluxDB database. IP addresses are pinged individually whereas hostnames are first resolved, each and every IPv4 or IPv6 address then being pinged concurrently.
+pingflux is a small application written in Go that measures the ICMP round-trip time and packet loss between the local host and a set of remote endpoints. It then stores these data in an InfluxDB database. IP addresses are pinged individually whereas hostnames are first resolved, each of their IPv4 and IPv6 addresses then being pinged concurrently.
 
 ## Usage
 
