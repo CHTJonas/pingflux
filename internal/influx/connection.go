@@ -11,21 +11,25 @@ type Connection struct {
 	database string
 }
 
-func New(addr string, db string, username string, password string) (*Connection, error) {
+func New(addr, db, username, password, userAgent string) (*Connection, error) {
 	conn := &Connection{}
-	err := conn.Open(addr, db, username, password)
+	err := conn.Open(addr, db, username, password, userAgent)
 	if err != nil {
 		return nil, err
 	}
 	return conn, nil
 }
 
-func (conn *Connection) Open(addr string, db string, username string, password string) error {
-	c, err := client.NewHTTPClient(client.HTTPConfig{
+func (conn *Connection) Open(addr, db, username, password, userAgent string) error {
+	conf := client.HTTPConfig{
 		Addr:     addr,
 		Username: username,
 		Password: password,
-	})
+	}
+	if userAgent != "" {
+		conf.UserAgent = userAgent
+	}
+	c, err := client.NewHTTPClient(conf)
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,8 @@ var connection *influx.Connection
 // Software version defaults to the value below but is overridden by the compiler in Makefile.
 var version = "dev-edge"
 
+const homepage = "https://github.com/CHTJonas/pingflux"
+
 func init() {
 	if os.Geteuid() == 0 {
 		fmt.Println("WARNING: Running pingflux as root is strongly discouraged")
@@ -146,9 +148,10 @@ func initConnection() {
 	db := viper.GetString("datastore.influx.database")
 	username := viper.GetString("datastore.influx.username")
 	password := viper.GetString("datastore.influx.password")
+	userAgent := fmt.Sprintf("pingflux/%s (+%s)", version, homepage)
 	fmt.Printf("Connecting to %s on %s\n", db, addr)
 	var err error
-	connection, err = influx.New(addr, db, username, password)
+	connection, err = influx.New(addr, db, username, password, userAgent)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(500)
