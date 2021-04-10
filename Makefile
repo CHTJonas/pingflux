@@ -16,6 +16,12 @@ mod:
 format:
 	@$(GOFMT) ./...
 
+build/linux/mips64: dir mod
+	export CGO_ENABLED=0
+	export GOOS=linux
+	export GOARCH=mips64
+	$(GOBUILD) -o bin/pingflux-linux-$(VER:v%=%)-mips64 cmd/pingflux/main.go
+
 build/linux/armv7: dir mod
 	export CGO_ENABLED=0
 	export GOOS=linux
@@ -41,7 +47,7 @@ build/linux/amd64: dir mod
 	export GOARCH=amd64
 	$(GOBUILD) -o bin/pingflux-linux-$(VER:v%=%)-amd64 cmd/pingflux/main.go
 
-build/linux: build/linux/armv7 build/linux/arm64 build/linux/386 build/linux/amd64
+build/linux: build/linux/mips64 build/linux/armv7 build/linux/arm64 build/linux/386 build/linux/amd64
 
 build/darwin/arm64: dir mod
 	export CGO_ENABLED=0
