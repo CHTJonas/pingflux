@@ -35,13 +35,12 @@ func main() {
 	count, interval := readConfig()
 	initConnection()
 	defer connection.Close()
-	_, ver, err := connection.Ping(0)
+	rtt, ver, err := connection.Ping(0)
 	if err != nil {
 		fmt.Println("Error contacting InfluxDB server:", err.Error())
 		os.Exit(1)
-	} else {
-		fmt.Println("Found InfluxDB server version", ver)
 	}
+	fmt.Printf("Found InfluxDB server version %s. HTTP request RTT %s\n", ver, rtt)
 	initHosts()
 
 	size := viper.GetInt("options.batch-size")
@@ -152,11 +151,11 @@ func initConnection() {
 	username := viper.GetString("datastore.influx.username")
 	password := viper.GetString("datastore.influx.password")
 	userAgent := fmt.Sprintf("pingflux/%s (+%s)", version, homepage)
-	fmt.Printf("Connecting to %s on %s\n", db, addr)
+	fmt.Println("Connecting to", addr)
 	var err error
 	connection, err = influx.New(addr, db, username, password, userAgent)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Error connecting to InfluxDB:", err)
 		os.Exit(500)
 	}
 }
