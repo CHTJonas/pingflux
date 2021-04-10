@@ -21,6 +21,7 @@ datastore:
   influx:
     hostname: 127.0.0.1
     port: 8086
+    path: /
     username: user
     password: pass
     database: pingflux

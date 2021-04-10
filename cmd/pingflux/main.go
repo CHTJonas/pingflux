@@ -138,13 +138,16 @@ func initHosts() {
 }
 
 func initConnection() {
-	addr := ""
+	var addr string
 	if viper.GetBool("datastore.influx.secure") {
 		addr += "https://"
 	} else {
 		addr += "http://"
 	}
-	addr += viper.GetString("datastore.influx.hostname") + ":" + viper.GetString("datastore.influx.port")
+	addr += viper.GetString("datastore.influx.hostname")
+	addr += ":"
+	addr += viper.GetString("datastore.influx.port")
+	addr += viper.GetString("datastore.influx.path")
 	db := viper.GetString("datastore.influx.database")
 	username := viper.GetString("datastore.influx.username")
 	password := viper.GetString("datastore.influx.password")
