@@ -44,7 +44,7 @@ func main() {
 	}
 	initHosts()
 
-	size := 25
+	size := viper.GetInt("options.batch-size")
 	resultChan := make(chan *hosts.Result, size)
 	resultsArrPool := sync.Pool{
 		New: func() interface{} {

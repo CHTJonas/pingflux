@@ -8,6 +8,8 @@ On Linux and macOS you will need to run the binary with `CAP_NET_RAW` privileges
 
 pingflux loads its configuration settings by looking for a `config.yml` file in either `/etc/pingflux/`, `$HOME/.pingflux` or the current working directory in that order of precedence. Remote hosts are listed in groups which share a common set of key-value tags in InfluxDB. The number of pings sent to each host and the interval in seconds at which these pings are sent to each host are configurable using the `count` and `interval` options respectively. A count of 10 at an interval of 60 means that every 10 pings will be sent in quick succession to each host every 60 seconds.
 
+To minimise concurrent HTTP requests and improve performance, data are bundled together and submitted to InfluxDB in batches, the size of which is controlled by the `batch-size` option. The default of 25 is optimised for very large numbers of hosts however you may wish to reduce this substantially if you are only pinging a few hosts.
+
 The `datastore` section specifies the backend database that pingflux will use to store data, although at this time only InfluxDB is supported. The hostname, port and database name can all be configured together with the `secure` value which may be set to `true` to enable HTTPS.
 
 An example config file might be:
@@ -16,6 +18,7 @@ An example config file might be:
 options:
   count: 10
   interval: 60
+  batch-size: 25
 
 datastore:
   influx:
