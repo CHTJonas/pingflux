@@ -25,6 +25,7 @@ func (conn *Connection) Open(addr, db, username, password, userAgent string) err
 		Addr:     addr,
 		Username: username,
 		Password: password,
+		Timeout:  10 * time.Second,
 	}
 	if userAgent != "" {
 		conf.UserAgent = userAgent
