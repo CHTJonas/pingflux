@@ -91,8 +91,9 @@ func storeData(resultsArrPtr *[]*hosts.Result) {
 		if err == nil {
 			break
 		}
-		fmt.Println("Failed to store data:", err)
-		<-time.After(b.Duration())
+		dur := b.Duration()
+		fmt.Printf("Failed to store data in InfluxDB: %s. Will retry after %s\n", err, dur)
+		<-time.After(dur)
 	}
 }
 
