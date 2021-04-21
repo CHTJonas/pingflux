@@ -30,6 +30,9 @@ func (conn *Connection) Store(resultsArrPtr *[]*hosts.Result) (err error) {
 			batch.AddPoint(generatePacketsPoint(stats, result.Tags, result.When))
 		}
 	}
+	if len(batch.Points()) == 0 {
+		return nil
+	}
 	return conn.client.Write(batch)
 }
 
