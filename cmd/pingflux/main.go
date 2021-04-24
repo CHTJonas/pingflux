@@ -53,8 +53,11 @@ func main() {
 	}
 
 	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt)
+	signal.Notify(stop, syscall.SIGINT)
 	signal.Notify(stop, syscall.SIGTERM)
+
+	reload := make(chan os.Signal, 1)
+	signal.Notify(reload, syscall.SIGHUP)
 
 	go hostList.Ping(count, interval, resultChan)
 
@@ -76,8 +79,11 @@ func main() {
 				n = 0
 				resultsArrPtr = resultsArrPool.Get().(*[]*hosts.Result)
 			}
+		case <-reload:
+			fmt.Println("Reloading config...")
+			hostList.Stop()
 		case <-stop:
-			fmt.Println("Received shutdown signal...")
+			fmt.Println("Shutting down...")
 			storeData(resultsArrPtr)
 			os.Exit(0)
 		}
