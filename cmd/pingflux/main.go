@@ -81,7 +81,13 @@ func main() {
 			}
 		case <-reload:
 			fmt.Println("Reloading config...")
+			if err := viper.ReadInConfig(); err != nil {
+				fmt.Println("Failed to read config file:", err)
+				continue
+			}
 			hostList.Stop()
+			initHosts()
+			go hostList.Ping(count, interval, resultChan)
 		case <-stop:
 			fmt.Println("Shutting down...")
 			storeData(resultsArrPtr)
