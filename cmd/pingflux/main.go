@@ -116,13 +116,8 @@ func readConfig() (int, int) {
 	viper.AddConfigPath("$HOME/.pingflux")
 	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found
-			panic(err)
-		} else {
-			// Config file found but another error was encountered
-			panic(err)
-		}
+		fmt.Println("Failed to read config file:", err)
+		os.Exit(125)
 	}
 	return viper.GetInt("options.count"), viper.GetInt("options.interval")
 }
