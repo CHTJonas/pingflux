@@ -61,9 +61,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now pingflux
 ```
 
----
-
-### Copyright
+## Copyright
 
 pingflux is licensed under the [BSD 2-Clause License](https://opensource.org/licenses/BSD-2-Clause).
 
