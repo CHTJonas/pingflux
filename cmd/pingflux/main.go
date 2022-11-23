@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"os/signal"
@@ -26,23 +27,23 @@ const homepage = "https://github.com/CHTJonas/pingflux"
 
 func init() {
 	if os.Geteuid() == 0 {
-		fmt.Println("WARNING: Running pingflux as root is strongly discouraged")
-		fmt.Println("WARNING: You should set the CAP_NET_RAW privilege instead")
+		log.Println("WARNING: Running pingflux as root is strongly discouraged")
+		log.Println("WARNING: You should set the CAP_NET_RAW privilege instead")
 	}
 }
 
 func main() {
-	fmt.Println("pingflux version", version)
+	log.Println("pingflux version", version)
 
 	count, interval := readConfig()
 	initConnection()
 	defer connection.Close()
 	rtt, ver, err := connection.Ping(0)
 	if err != nil {
-		fmt.Println("Error contacting InfluxDB server:", err.Error())
+		log.Println("Error contacting InfluxDB server:", err.Error())
 		os.Exit(1)
 	}
-	fmt.Printf("Found InfluxDB server version %s. HTTP request RTT %s\n", ver, rtt)
+	log.Printf("Found InfluxDB server version %s. HTTP request RTT %s\n", ver, rtt)
 	initHosts()
 
 	size := viper.GetInt("options.batch-size")
@@ -82,16 +83,16 @@ func main() {
 				resultsArrPtr = resultsArrPool.Get().(*[]*hosts.Result)
 			}
 		case <-reload:
-			fmt.Println("Reloading config...")
+			log.Println("Reloading config...")
 			if err := viper.ReadInConfig(); err != nil {
-				fmt.Println("Failed to read config file:", err)
+				log.Println("Failed to read config file:", err)
 				continue
 			}
 			hostList.Stop()
 			initHosts()
 			go hostList.Ping(count, interval, resultChan)
 		case <-stop:
-			fmt.Println("Shutting down...")
+			log.Println("Shutting down...")
 			storeData(resultsArrPtr)
 			os.Exit(0)
 		}
@@ -106,7 +107,7 @@ func storeData(resultsArrPtr *[]*hosts.Result) {
 			break
 		}
 		dur := b.Duration()
-		fmt.Printf("Failed to store data in InfluxDB: %s. Will retry after %s\n", err, dur)
+		log.Printf("Failed to store data in InfluxDB: %s. Will retry after %s\n", err, dur)
 		<-time.After(dur)
 	}
 }
@@ -118,7 +119,7 @@ func readConfig() (int, int) {
 	viper.AddConfigPath("$HOME/.pingflux")
 	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("Failed to read config file:", err)
+		log.Println("Failed to read config file:", err)
 		os.Exit(125)
 	}
 	return viper.GetInt("options.count"), viper.GetInt("options.interval")
@@ -143,7 +144,7 @@ func initHosts() {
 		}
 	}
 	hostList.Shuffle()
-	fmt.Println("Found", hostList.Length(), "hosts in config file")
+	log.Println("Found", hostList.Length(), "hosts in config file")
 }
 
 func initConnection() {
@@ -161,11 +162,17 @@ func initConnection() {
 	username := viper.GetString("datastore.influx.username")
 	password := viper.GetString("datastore.influx.password")
 	userAgent := fmt.Sprintf("pingflux/%s (+%s)", version, homepage)
-	fmt.Println("Connecting to", addr)
+	log.Println("Connecting to", addr)
 	var err error
 	connection, err = influx.New(addr, db, username, password, userAgent)
 	if err != nil {
-		fmt.Println("Error connecting to InfluxDB:", err)
+		log.Println("Error connecting to InfluxDB:", err)
 		os.Exit(500)
+	}
+}
+
+func init() {
+	if os.Getenv("JOURNAL_STREAM") != "" {
+		log.Default().SetFlags(0)
 	}
 }
