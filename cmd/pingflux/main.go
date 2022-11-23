@@ -32,6 +32,8 @@ func init() {
 }
 
 func main() {
+	fmt.Println("pingflux version", version)
+
 	count, interval := readConfig()
 	initConnection()
 	defer connection.Close()
