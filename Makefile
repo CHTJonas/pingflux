@@ -5,7 +5,7 @@ VER=$(shell git describe --tags --always --dirty)
 GO=$(shell which go)
 GOMOD=$(GO) mod
 GOFMT=$(GO) fmt
-GOBUILD=$(GO) build -trimpath -mod=readonly -ldflags "-X main.version=$(VER) -s -w -buildid="
+GOBUILD=$(GO) build -trimpath -mod=readonly -ldflags "-X main.version=$(VER:v%=%) -s -w -buildid="
 
 dir:
 	@if [ ! -d bin ]; then mkdir -p bin; fi

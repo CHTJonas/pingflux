@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"sync"
 	"syscall"
@@ -22,8 +23,6 @@ var connection *influx.Connection
 
 // Software version defaults to the value below but is overridden by the compiler in Makefile.
 var version = "dev-edge"
-
-const homepage = "https://github.com/CHTJonas/pingflux"
 
 func init() {
 	if os.Geteuid() == 0 {
@@ -161,7 +160,8 @@ func initConnection() {
 	db := viper.GetString("datastore.influx.database")
 	username := viper.GetString("datastore.influx.username")
 	password := viper.GetString("datastore.influx.password")
-	userAgent := fmt.Sprintf("pingflux/%s (+%s)", version, homepage)
+	userAgent := fmt.Sprintf("pingflux/%s Go/%s (+https://github.com/CHTJonas/pingflux)",
+		version, strings.TrimPrefix(runtime.Version(), "go"))
 	log.Println("Connecting to", addr)
 	var err error
 	connection, err = influx.New(addr, db, username, password, userAgent)
