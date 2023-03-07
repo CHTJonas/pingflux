@@ -65,4 +65,4 @@ sudo systemctl enable --now pingflux
 
 pingflux is licensed under the [BSD 2-Clause License](https://opensource.org/licenses/BSD-2-Clause).
 
-Copyright (c) 2019–2022 Charlie Jonas.
+Copyright (c) 2019 Charlie Jonas.
