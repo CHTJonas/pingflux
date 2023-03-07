@@ -74,10 +74,7 @@ build/windows: build/windows/amd64
 build: build/linux build/darwin build/windows
 
 license: dir
-	@echo "Pingflux is licensed under a 2-clause BSD license." > bin/license.txt
-	cat LICENSE | sed 1d >> bin/license.txt
-	echo >> bin/license.txt
-	cat THIRDPARTY >> bin/license.txt
+	cp NOTICE bin/NOTICE
 
 clean:
 	@rm -rf bin
