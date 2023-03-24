@@ -54,7 +54,7 @@ cd pingflux
 make clean && make all
 ```
 
-For Linux users there is a [sample systemd service file](https://github.com/CHTJonas/pingflux/blob/master/pingflux.service) available which you can place at `/etc/systemd/system/pingflux.service` and then activate:
+For Linux users there is a [sample systemd service file](https://github.com/CHTJonas/pingflux/blob/main/pingflux.service) available which you can place at `/etc/systemd/system/pingflux.service` and then activate:
 
 ```bash
 sudo systemctl daemon-reload
