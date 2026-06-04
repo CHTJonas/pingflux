@@ -1,4 +1,4 @@
-module github.com/chtjonas/pingflux
+module github.com/CHTJonas/pingflux
 
 go 1.15
 

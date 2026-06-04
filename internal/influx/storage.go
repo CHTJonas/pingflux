@@ -3,7 +3,7 @@ package influx
 import (
 	"time"
 
-	"github.com/chtjonas/pingflux/internal/hosts"
+	"github.com/CHTJonas/pingflux/internal/hosts"
 	"github.com/go-ping/ping"
 	client "github.com/influxdata/influxdb1-client/v2"
 )

@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/chtjonas/pingflux/internal/hosts"
-	"github.com/chtjonas/pingflux/internal/influx"
+	"github.com/CHTJonas/pingflux/internal/hosts"
+	"github.com/CHTJonas/pingflux/internal/influx"
 	"github.com/cloudflare/backoff"
 	"github.com/spf13/viper"
 )
